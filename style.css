@@ -2,6 +2,8 @@
   --color-brand--1: #ffb545;
   --color-brand--2: #00c46a;
 
+  --color-caution--1: #fa5252;
+
   --color-dark--1: #2d3439;
   --color-dark--2: #42484d;
   --color-light--1: #aaa;
@@ -113,6 +115,41 @@ a:visited {
   font-weight: 800;
 }
 
+.workout--button-container {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.workout--button-container.hidden {
+  height: 0;
+  margin-bottom: 0;
+  opacity: 0;
+}
+
+.workout--button {
+  cursor: pointer;
+  min-width: 9.6rem;
+  min-height: 2.4rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--color-dark--1);
+  backface-visibility: hidden;
+  transition: all 0.5s;
+}
+
+.workout--button-edit {
+  background-color: var(--color-brand--1);
+}
+.workout--button-delete {
+  background-color: var(--color-caution--1);
+}
+
+.workout--button:hover {
+  transform: scale(1.1);
+}
 .form {
   background-color: var(--color-dark--2);
   border-radius: 5px;
@@ -217,4 +254,24 @@ a:visited {
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+.button-reset {
+  cursor: pointer;
+  align-self: center;
+  justify-self: center;
+  background-color: var(--color-caution--1);
+  color: var(--color-dark--1);
+  border: none;
+  border-radius: 6px;
+  min-width: 40%;
+  height: 3rem;
+  font-weight: 600;
+  margin: 1.2rem;
+  backface-visibility: hidden;
+  transition: all 0.5s;
+}
+
+.button-reset:hover {
+  transform: scale(1.1);
 }
