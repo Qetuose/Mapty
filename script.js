@@ -84,12 +84,17 @@ class App {
     // Get data from local storage
     this._getLocalStorage();
 
+    this.testRunner();
+
     // Attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     containerWorkouts.addEventListener('click',this._showWorkoutButtons.bind(this)); //prettier-ignore
-    containerWorkouts.addEventListener('click',this._deleteWorkout.bind(this)); //prettier-ignore
+    containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
+    containerWorkouts.addEventListener('click', this._renderEditForm.bind(this)); //prettier-ignore
+    containerWorkouts.addEventListener('click', this._cacncelEdit.bind(this));
+    containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
     buttonReset.addEventListener('click', this.reset);
   }
 
@@ -283,28 +288,22 @@ class App {
     this._hideWorkoutButtons();
   }
 
-  _deleteWorkout() {
-    const delBtn = document.querySelectorAll('.workout--button-delete');
-    delBtn.forEach(btn =>
-      btn.addEventListener('click', e => {
-        if (!this.#map) return;
+  _deleteWorkout(e) {
+    if (e.target.classList.contains('workout--button-delete')) {
+      const workoutEl = e.target.closest('.workout');
+      if (!workoutEl) return;
 
-        const workoutEl = e.target.closest('.workout');
+      const workout = this.#workouts.find(
+        work => work.id === workoutEl.dataset.id
+      );
 
-        if (!workoutEl) return;
+      this.#workouts = this.#workouts.filter(work => work !== workout);
 
-        const workout = this.#workouts.find(
-          work => work.id === workoutEl.dataset.id
-        );
+      localStorage.removeItem('workouts');
+      this._setLocalStorage();
 
-        this.#workouts = this.#workouts.filter(work => work !== workout);
-
-        localStorage.removeItem('workouts');
-        this._setLocalStorage();
-
-        location.reload();
-      })
-    );
+      location.reload();
+    }
   }
 
   _renderEditForm() {
@@ -324,7 +323,7 @@ class App {
         workoutEl.classList.add('hidden');
 
         let html = `
-         <li class="workout workout--${workout.type}" data-id="${workout.id}">
+         <li class="workout workout--${workout.type}" data-id="${workout.id}"> 
         <form>
        <div class= "workout--wrapper">
         <h2 class="workout__title">${workout.description}</h2>
@@ -362,7 +361,15 @@ class App {
           <input class="edit--input value-elevationGain" value="${workout.elevationGain}"></input>
           <span class="workout__unit">m</span>
         </div>
-        </form>
+       
+      `;
+
+        html += `
+      <div class="editContainer">
+        <button type="submit" class="workout--button button-save">Save</button>
+        <button class="workout--button button-cancel">Cancel</button>
+      </div>
+       </form>
         </li>
       `;
 
@@ -371,19 +378,60 @@ class App {
     );
   }
 
-  _editWorkout() {
-    this._renderEditForm();
+  _editWorkout(e) {
+    if (e.target.classList.contains('button-save')) {
+      const distance = document.querySelector('.value-distance').value;
+      const duration = document.querySelector('.value-duration').value;
+      let cadence;
+      let elevationGain;
 
-    const distance = document.querySelector('.value-distance').value;
-    const duration = document.querySelector('.value-duration').value;
-    const cadence = document.querySelector('.value-cadence').value;
-    const elevGain = document.querySelector('.value-elevationGain').value;
+      if (!this.#map) return;
+
+      const workoutEl = e.target.closest('.workout');
+
+      if (!workoutEl) return;
+
+      const index = this.#workouts.findIndex(
+        work => work.id === workoutEl.dataset.id
+      );
+
+      this.#workouts[index].distance = +distance;
+      this.#workouts[index].duration = +duration;
+
+      if (this.#workouts[index].type === 'running') {
+        cadence = document.querySelector('.value-cadence').value;
+        this.#workouts[index].cadence = +cadence;
+      }
+
+      if (this.#workouts[index].type === 'cycling') {
+        elevationGain = document.querySelector('.value-elevationGain').value;
+        this.#workouts[index].elevationGain = +elevationGain;
+      }
+
+      localStorage.removeItem('workouts');
+
+      this._setLocalStorage();
+      location.reload();
+    }
+  }
+
+  _cacncelEdit(e) {
+    if (e.target.classList.contains('button-cancel')) {
+      const workoutEl = e.target.closest('.workout');
+      if (!workoutEl) return;
+
+      workoutEl.remove();
+      containerWorkouts
+        .querySelector('.workout.hidden')
+        .classList.remove('hidden');
+    }
   }
 
   _hideWorkoutButtons() {
     const btns = document.querySelectorAll('.workout--button-container');
     btns.forEach(el => el.classList.add('hidden'));
   }
+
   _showWorkoutButtons(e) {
     const clicked = e.target.closest('.workout--wrapper');
     if (!clicked) return;
@@ -391,6 +439,8 @@ class App {
     const btnContainer = clicked
       .closest('.workout')
       .querySelector('.workout--button-container');
+
+    if (!btnContainer) return;
 
     if (btnContainer.classList.contains('hidden')) {
       this._hideWorkoutButtons();
@@ -441,6 +491,8 @@ class App {
     localStorage.removeItem('workouts');
     location.reload();
   }
+
+  testRunner() {}
 }
 
 const app = new App();

@@ -163,6 +163,23 @@ a:visited {
   background-color: var(--color-caution--1);
 }
 
+.editContainer {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.button-save {
+  background-color: var(--color-brand--2);
+}
+
+.button-cancel {
+  background-color: var(--color-caution--1);
+}
+
 .workout--button:hover {
   transform: scale(1.1);
 }
