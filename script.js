@@ -63,6 +63,7 @@ class Cycling extends Workout {
 ///////////////////////////////////////
 // APPLICATION ARCHITECTURE
 const form = document.querySelector('.form');
+const sortType = document.querySelector('.sort--select');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -87,7 +88,9 @@ class App {
 
     // Attach event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
+
     inputType.addEventListener('change', this._toggleElevationField);
+    sortType.addEventListener('change', this._sortWorkouts.bind(this));
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     containerWorkouts.addEventListener('click',this._showWorkoutButtons.bind(this)); //prettier-ignore
     containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
@@ -505,6 +508,29 @@ class App {
   reset() {
     localStorage.removeItem('workouts');
     location.reload();
+  }
+
+  _sortWorkouts() {
+    const workoutEls = containerWorkouts.querySelectorAll('.workout');
+    workoutEls.forEach(el => el.remove());
+    let workoutsArr = [];
+
+    if (sortType.value === 'none')
+      this.#workouts.forEach(workout => this._renderWorkout(workout));
+
+    if (sortType.value === 'distance') {
+      const sortDistnace = this.#workouts.sort(
+        (a, b) => a.distance - b.distance
+      );
+      sortDistnace.forEach(workout => this._renderWorkout(workout));
+    }
+
+    if (sortType.value === 'time') {
+      const sortDistnace = this.#workouts.sort(
+        (a, b) => a.duration - b.duration
+      );
+      sortDistnace.forEach(workout => this._renderWorkout(workout));
+    }
   }
 }
 

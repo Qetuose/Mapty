@@ -64,6 +64,9 @@ a:visited {
   overflow-y: scroll;
   overflow-x: hidden;
 }
+.workouts.hidden {
+  display: none;
+}
 
 .workouts::-webkit-scrollbar {
   width: 0;
