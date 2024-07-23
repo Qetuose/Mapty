@@ -32,7 +32,17 @@
   <body>
     <div class="sidebar">
       <img src="logo.png" alt="Logo" class="logo" />
-
+      <span class="form--error form__row hidden"
+        >Inputs must be positive number!</span
+      >
+      <div class="sort--container">
+        <span class="sort--span">Sort by:</span>
+        <select class="sort--select">
+          <option value="">-----</option>
+          <option value="distance">Distance</option>
+          <option value="time">Time</option>
+        </select>
+      </div>
       <ul class="workouts">
         <form class="form hidden">
           <div class="form__row">
