@@ -72,12 +72,14 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 const buttonReset = document.querySelector('.button-reset');
 const inputError = document.querySelector('.form--error');
+const checkBox = document.querySelector('.checkbox');
 
 class App {
   #map;
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  #apiKey = `bdc_a03f3cfed2234d4b843fba1270978e36`;
 
   constructor() {
     // Get user's position
@@ -98,6 +100,7 @@ class App {
     containerWorkouts.addEventListener('click', this._cacncelEdit.bind(this));
     containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
     buttonReset.addEventListener('click', this.reset);
+    checkBox.addEventListener('change', this._handleCheckbox);
   }
 
   _getPosition() {
@@ -235,28 +238,37 @@ class App {
   }
 
   _renderWorkoutMarker(workout) {
-    L.marker(workout.coords)
-      .addTo(this.#map)
-      .bindPopup(
-        L.popup({
-          maxWidth: 250,
-          minWidth: 100,
-          autoClose: false,
-          closeOnClick: false,
-          className: `${workout.type}-popup`,
-        })
-      )
-      .setPopupContent(
-        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
-      )
-      .openPopup();
+    const [lat, lng] = workout.coords;
+
+    this._getCity(lat, lng).then(res => {
+      L.marker(workout.coords)
+        .addTo(this.#map)
+        .bindPopup(
+          L.popup({
+            maxWidth: 250,
+            minWidth: 100,
+            autoClose: false,
+            closeOnClick: false,
+            className: `${workout.type}-popup`,
+          })
+        )
+        .setPopupContent(
+          `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${
+            workout.description
+          } in ${res}`
+        )
+        .openPopup();
+    });
   }
 
   _renderWorkout(workout) {
-    let html = `
+    const [lat, lng] = workout.coords;
+
+    this._getCity(lat, lng).then(res => {
+      let html = `
       <li class="workout workout--${workout.type}" data-id="${workout.id}">
       <div class= "workout--wrapper">
-        <h2 class="workout__title">${workout.description}</h2>
+        <h2 class="workout__title">${workout.description}, ${res}</h2>
         <div class="workout__details">
           <span class="workout__icon">${
             workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -271,8 +283,8 @@ class App {
         </div>
     `;
 
-    if (workout.type === 'running')
-      html += `
+      if (workout.type === 'running')
+        html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
           <span class="workout__value">${workout.pace.toFixed(1)}</span>
@@ -285,8 +297,8 @@ class App {
         </div>
       `;
 
-    if (workout.type === 'cycling')
-      html += `
+      if (workout.type === 'cycling')
+        html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
           <span class="workout__value">${workout.speed.toFixed(1)}</span>
@@ -299,7 +311,7 @@ class App {
         </div>
       `;
 
-    html += `
+      html += `
     </div>
         <div class = "workout--button-container">
           <button class="workout--button workout--button-edit">Edit</button>
@@ -308,8 +320,9 @@ class App {
       </li>
       `;
 
-    form.insertAdjacentHTML('afterend', html);
-    this._hideWorkoutButtons();
+      form.insertAdjacentHTML('afterend', html);
+      this._hideWorkoutButtons();
+    });
   }
 
   _deleteWorkout(e) {
@@ -510,7 +523,7 @@ class App {
     location.reload();
   }
 
-  _sortWorkouts() {
+  _sortWorkouts(MapE) {
     const workoutEls = containerWorkouts.querySelectorAll('.workout');
     workoutEls.forEach(el => el.remove());
     let workoutsArr = [];
@@ -531,6 +544,32 @@ class App {
       );
       sortDistnace.forEach(workout => this._renderWorkout(workout));
     }
+  }
+
+  async _getCity(lat, lng) {
+    try {
+      const res = await fetch(
+        `https://api-bdc.net/data/reverse-geocode?latitude=${lat}&longitude=${lng}&localityLanguage=en&key=${
+          this.#apiKey
+        }`
+      );
+      if (!res.ok) throw new Error('Problem Getting location data');
+
+      const data = await res.json();
+
+      return `${data.countryName}, ${data.locality}`;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  _handleCheckbox() {
+    const popups = document.querySelectorAll('.leaflet-popup');
+
+    popups.forEach(popup => {
+      if (this.checked) popup.style.display = 'none';
+      else popup.style.display = 'block';
+    });
   }
 }
 

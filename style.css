@@ -188,9 +188,17 @@ a:visited {
 .workout--button:hover {
   transform: scale(1.1);
 }
-
+.settings {
+  display: flex;
+  justify-content: space-between;
+}
+.checkbox--container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
 .sort--container {
-  grid-column: 1/ -1;
   display: flex;
   gap: 1rem;
   justify-content: end;
@@ -207,6 +215,9 @@ a:visited {
   justify-self: center;
   font-size: 1.4rem;
   border-radius: 4px;
+}
+.checkbox {
+  accent-color: var(--color-brand--2);
 }
 .form {
   background-color: var(--color-dark--2);
@@ -360,5 +371,24 @@ a:visited {
 }
 
 .button-reset:hover {
+  transform: scale(1.1);
+}
+
+.button-new_workout {
+  cursor: pointer;
+  align-self: center;
+  justify-self: center;
+  background-color: var(--color-brand--2);
+  color: var(--color-dark--1);
+  border: none;
+  border-radius: 6px;
+  min-width: 40%;
+  height: 3rem;
+  font-weight: 600;
+  margin: 1.2rem;
+  backface-visibility: hidden;
+  transition: all 0.5s;
+}
+.button-new_workout:hover {
   transform: scale(1.1);
 }
